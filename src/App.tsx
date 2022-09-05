@@ -1,79 +1,82 @@
-import { DragDropContext, DropResult } from "react-beautiful-dnd";
-import { useRecoilState } from "recoil";
-import styled from "styled-components";
-import { toDoState } from "./atoms";
-import Board from "./Components/Board";
+import { useRecoilValue } from "recoil";
+import { createGlobalStyle, ThemeProvider } from "styled-components";
+import { darkState } from "./atoms";
+import DragnDrop from "./DragnDrop";
 
-const Wrapper = styled.div`
-  display: flex;
-  max-width: 680px;
-  width: 100%;
-  margin: 0 auto;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-`;
+import { darkTheme, lightTheme } from "./theme";
 
-const Boards = styled.div`
-  display: grid;
-  gap: 10px;
-  grid-template-columns: repeat(3, 1fr);
-  width: 100%;
+const GlobalStyle = createGlobalStyle`
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400&display=swap');
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, menu, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+main, menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure,
+footer, header, hgroup, main, menu, nav, section {
+  display: block;
+}
+/* HTML5 hidden-attribute fix for newer browsers */
+*[hidden] {
+    display: none;
+}
+body {
+  line-height: 1;
+}
+menu, ol, ul {
+  list-style: none;
+}
+blockquote, q {
+  quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+  content: '';
+  content: none;
+}
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  font-weight: 300;
+  font-family: 'Source Sans Pro', sans-serif;
+  background-color:${(props) => props.theme.bgColor};
+  color: black;
+  line-height: 1.2;
+}
+a {
+  text-decoration:none;
+  color:inherit;
+}
 `;
 
 function App() {
-  const [toDos, setToDos] = useRecoilState(toDoState);
-
-  // 박스를 놓을때 실행되는 함수 onDragEnd
-  const onDragEnd = (info: DropResult) => {
-    const { destination, draggableId, source } = info;
-
-    if (!destination) return;
-
-    // 같은 보드에서 움직이기
-    if (destination?.droppableId === source.droppableId) {
-      setToDos((allBoards) => {
-        const boardCopy = [...allBoards[source.droppableId]];
-        const taskObj = boardCopy[source.index];
-        // 1) 옮기고자 하는 아이템 배열에서 삭제하기
-        boardCopy.splice(source.index, 1); // source.index 는 움직이고 싶은 item이 어딨는지 알려줌
-        // 2) 옮긴 아이템 다시 원하는 위치에 놓기
-        boardCopy.splice(destination?.index, 0, taskObj); // destination?.index 는 목적지의 index
-        // 일단 모든 보드를 리턴해주고 그중에서 변경된 보드를 리턴
-        return {
-          ...allBoards,
-          [source.droppableId]: boardCopy,
-        };
-      });
-    }
-
-    // 다른 보드로 움직이기
-    if (destination.droppableId !== source.droppableId) {
-      setToDos((allBoards) => {
-        const sourceBoard = [...allBoards[source.droppableId]]; // 이동시킨 보드의 id
-        const taskObj = sourceBoard[source.index];
-        const destinationBoard = [...allBoards[destination.droppableId]]; // 이동을 완료한 보드의 id
-        sourceBoard.splice(source.index, 1);
-        destinationBoard.splice(destination.index, 0, taskObj);
-        return {
-          ...allBoards,
-          [source.droppableId]: sourceBoard,
-          [destination.droppableId]: destinationBoard,
-        };
-      });
-    }
-  };
-
+  const isDark = useRecoilValue(darkState);
   return (
-    <DragDropContext onDragEnd={onDragEnd}>
-      <Wrapper>
-        <Boards>
-          {Object.keys(toDos).map((index) => (
-            <Board toDos={toDos[index]} boardId={index} key={index} />
-          ))}
-        </Boards>
-      </Wrapper>
-    </DragDropContext>
+    <ThemeProvider theme={isDark ? darkTheme : lightTheme}>
+      <GlobalStyle />
+      <DragnDrop />
+    </ThemeProvider>
   );
 }
 export default App;
