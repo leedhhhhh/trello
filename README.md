@@ -95,6 +95,8 @@ react-beautiful-dnd 를 처음 접하게 된건 개발자 모임에서 어떤 �
 react-beautiful-dnd 가 아니였다면 개발하기 어려웠을꺼같은 기능들이 조금 더 쉽게 만들어지는게 너무 멋있었다.<br />
 'Tech is created to fix problem' 라는 문장이 조금 더 마음에 와닿는 시간이 되었다. <br />
 
+## page
+https://leedhhhhh.github.io/trello/
 </div>
 
 
